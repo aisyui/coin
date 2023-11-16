@@ -1,0 +1,43 @@
+name: cron deploy
+
+on:
+  push:
+    branches:
+    - master
+  schedule:
+    - cron:  '0 */1 * * *'
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install zsh
+      run: sudo apt-get update; sudo apt-get install zsh
+    - uses: actions/setup-python@v3
+      with:
+        python-version: '3.11'
+    - name: Display Python version
+      shell: zsh {0}
+      env:
+        API_KEY: ${{ secrets.API_KEY }}
+        API_SECRET: ${{ secrets.API_SECRET }}
+      run: |
+        python -c "import sys; print(sys.version)"
+        pip install --upgrade pip
+        pip install requests
+        mkdir -p ./dist
+        date=`date --iso-8601=sec`
+        rate=`curl -sL https://coincheck.com/api/rate/btc_jpy|jq -r .rate`
+        json=`./test.py "$API_KEY" "$API_SECRET" | tr "'" '"'|jq ".[]|select(.currency_code == \"BTC\")"`
+        btc=`echo $json|jq -r .amount`
+        jpy=`echo $((btc * rate))|cut -d . -f 1`
+        echo $json| jq -s ".+[{\"jpy\":$jpy,\"rate\":$rate,\"updated_at\":\"${date}\"}]" > ./dist/btc.json
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        user_name: 'ai[bot]'
+        user_email: '138105980+yui-syui-ai[bot]@users.noreply.github.com'

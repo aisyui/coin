@@ -1,0 +1,8 @@
+__*
+t.py
+t.json
+*.lock
+dist/*.html
+dist/*.js
+dist/*.map
+node_modules
