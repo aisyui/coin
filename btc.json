@@ -1,5 +1,12 @@
-{
-  "currency_code": "BTC",
-  "amount": 0.4309972,
-  "available": 0.4309972
-}
+[
+  {
+    "currency_code": "BTC",
+    "amount": 0.4309972,
+    "available": 0.4309972
+  },
+  {
+    "jpy": 2345405,
+    "rate": 5441810.5,
+    "updated_at": "2023-11-16T21:17:58+00:00"
+  }
+]
